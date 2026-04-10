@@ -212,8 +212,7 @@ class Board:
         Hint:
             Check if there are no legal moves
         """
-        # TODO: Implement game-ending condition
-        pass
+        return len(self.generate_legal_moves()) == 0
 
     def result(self) -> str:
 
