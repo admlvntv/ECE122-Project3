@@ -228,7 +228,7 @@ class Board:
             ● "draw by stalemate"
 
         Rules:
-            
+
         - If no legal moves exist:
             If in check → opponent wins
             Otherwise → draw (stalemate)
@@ -236,8 +236,14 @@ class Board:
         Hint:
             Use is_game_over() and in_check() to decide.
         """
-        # TODO: Determine game result
-        pass
+        if not self.is_game_over():
+            return "ongoing"
+        if self.in_check():
+            if self.turn == "w":
+                return "Black wins by checkmate"
+            else:
+                return "White wins by checkmate"
+        return "draw by stalemate"
 
     def position_key(self) -> str:
         #Builds a string representation of the board plus side to move.
