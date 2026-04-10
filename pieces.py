@@ -89,7 +89,7 @@ class Piece:
         return type(self)(self.color)
 
     def _slide_moves(self, board: "Board", r: int, c: int, dirs: List[Tuple[int, int]]) -> List[Move]:
-       """
+        """
         Generate moves for pieces that move continuously in a direction (sliding pieces).
 
         Parameters:
@@ -113,8 +113,21 @@ class Piece:
         Hint:
             Use a loop to continue stepping in each direction.
         """
-        # TODO: Implement sliding movement logic
-        pass
+        moves = []
+        for dr, dc in dirs:
+            nr, nc = r + dr, c + dc
+            while in_bounds(nr, nc):
+                target_piece = board.grid[nr][nc]
+                if target_piece is None:
+                    moves.append(Move((r, c), (nr, nc)))
+                elif target_piece.color != self.color:
+                    moves.append(Move((r, c), (nr, nc)))
+                    break
+                else:
+                    break
+                nr += dr
+                nc += dc
+        return moves
 
     def _step_moves(self, board: "Board", r: int, c: int, deltas: List[Tuple[int, int]]) -> List[Move]:
 
