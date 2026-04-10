@@ -250,7 +250,7 @@ class Rook(Piece):
     value = 500
 
     def pseudo_legal_moves(self, board: "Board", r: int, c: int) -> List[Move]:
-         """
+        """
         Generate all pseudo-legal moves for a rook.
 
         Parameters:
@@ -271,8 +271,7 @@ class Rook(Piece):
         Hint:
             Call the sliding move helper with the correct directions.
         """
-        # TODO: Implement rook movement using sliding moves
-        pass
+        return self._slide_moves(board, r, c, [(-1, 0), (1, 0), (0, -1), (0, 1)])
 
 
 
