@@ -115,8 +115,31 @@ class Board:
         Hint:
             Access the piece using its starting position, then update both squares.
         """
-        # TODO: Implement board update logic
-        pass
+        # Source and destination coordinates
+        sr, sc = move.src
+        dr, dc = move.dst
+        piece = self.grid[sr][sc]
+        
+        # Store metadata for potential undoing
+        move.moved_piece = piece
+        move.captured_piece = self.grid[dr][dc]
+        move.prev_turn = self.turn
+        
+        # Update the grid: move piece and clear source square
+        self.grid[dr][dc] = piece
+        self.grid[sr][sc] = None
+        
+        # Handle special pawn promotion case
+        if move.promotion:
+            # Create a new piece based on the promotion symbol
+            promo_piece = piece_from_symbol(move.promotion)
+            # Ensure it has the correct color (same as moving pawn)
+            promo_piece.color = self.turn
+            self.grid[dr][dc] = promo_piece
+            
+        # Record move in history and toggle turn
+        self.history.append(move)
+        self.turn = self.opposite(self.turn)
 
     def undo_move(self, move: Move) -> None:
         #Restores moving piece to source, capture piece to dest, previous turn
@@ -158,8 +181,15 @@ class Board:
         Hint:
             Check piece color before generating moves.
         """
-        # TODO: Collect moves from all pieces
-        pass
+        moves = []
+        # Scan the entire 8x8 grid for pieces
+        for r in range(8):
+            for c in range(8):
+                piece = self.grid[r][c]
+                # Only generate moves for pieces belonging to the current player
+                if piece and piece.color == self.turn:
+                    moves.extend(piece.pseudo_legal_moves(self, r, c))
+        return moves
 
     def generate_legal_moves(self) -> List[Move]:
         """
@@ -184,8 +214,20 @@ class Board:
         Hint:
             Use apply_move() and undo functionality if available.
         """
-        # TODO: Filter pseudo-legal moves into legal moves
-        pass
+        legal_moves = []
+        # Get all moves that don't consider king safety first
+        pseudo_moves = self.generate_pseudo_legal_moves()
+        
+        for move in pseudo_moves:
+            # Temporarily apply each move to see if it's safe
+            self.apply_move(move)
+            # If our king is not in check after the move, it's legal
+            if not self.in_check(move.prev_turn):
+                legal_moves.append(move)
+            # Undo move to restore original board state
+            self.undo_move(move)
+            
+        return legal_moves
 
     def is_game_over(self) -> bool:
         """
@@ -200,17 +242,16 @@ class Board:
         Rules:
             - Game is over if:
                  The current player has no legal moves
-                
+
             - Do not modify the board
 
         Hint:
             Check if there are no legal moves
         """
-        # TODO: Implement game-ending condition
-        pass
+        # The game ends if the side to move has no legal moves available
+        return len(self.generate_legal_moves()) == 0
 
     def result(self) -> str:
-
         """
         Return the result of the game.
 
@@ -223,7 +264,7 @@ class Board:
             ● "draw by stalemate"
 
         Rules:
-            
+
         - If no legal moves exist:
             If in check → opponent wins
             Otherwise → draw (stalemate)
@@ -231,8 +272,16 @@ class Board:
         Hint:
             Use is_game_over() and in_check() to decide.
         """
-        # TODO: Determine game result
-        pass
+        # If the game is still going, return 'ongoing'
+        if not self.is_game_over():
+            return "ongoing"
+            
+        # Check for checkmate vs stalemate
+        if self.in_check():
+            winner = "Black" if self.turn == "w" else "White"
+            return f"{winner} wins by checkmate"
+        else:
+            return "draw by stalemate"
 
     def position_key(self) -> str:
         #Builds a string representation of the board plus side to move.
@@ -307,8 +356,25 @@ class Board:
         Hint:
             Carefully map chess notation to array indices.
         """
-        # TODO: Parse input into move coordinates
-        pass
+        # Clean input and check for minimum length
+        text = text.strip()
+        if len(text) < 4:
+            raise ValueError(f"Move text too short: {text}")
+            
+        # Parse the two squares involved
+        src = parse_square(text[0:2])
+        dst = parse_square(text[2:4])
+        # Check if there is a promotion piece specified (e.g. 'e7e8q')
+        promo = text[4].lower() if len(text) > 4 else None
+        
+        # Look for a matching legal move in the current position
+        # A move is considered valid if it is in the list of legal moves
+        for move in self.generate_legal_moves():
+            if move.src == src and move.dst == dst and move.promotion == promo:
+                return move
+                
+        # If no legal move matches, the input is considered 'invalid'
+        raise ValueError(f"Illegal move: {text}")
 
     def play_move_text(self, text: str) -> Move:
         #Parse move, apply, return move

@@ -89,7 +89,7 @@ class Piece:
         return type(self)(self.color)
 
     def _slide_moves(self, board: "Board", r: int, c: int, dirs: List[Tuple[int, int]]) -> List[Move]:
-       """
+        """
         Generate moves for pieces that move continuously in a direction (sliding pieces).
 
         Parameters:
@@ -113,8 +113,27 @@ class Piece:
         Hint:
             Use a loop to continue stepping in each direction.
         """
-        # TODO: Implement sliding movement logic
-        pass
+        moves = []
+        # Loop through each direction vector (dr, dc)
+        for dr, dc in dirs:
+            curr_r, curr_c = r + dr, c + dc
+            # Keep sliding while the current square is within the board limits
+            while in_bounds(curr_r, curr_c):
+                target_piece = board.grid[curr_r][curr_c]
+                # Empty square means a valid move; continue sliding in this direction
+                if target_piece is None:
+                    moves.append(Move((r, c), (curr_r, curr_c)))
+                # Enemy piece means a valid capture move; stop sliding after this square
+                elif target_piece.color != self.color:
+                    moves.append(Move((r, c), (curr_r, curr_c)))
+                    break
+                # Friendly piece means we are blocked; stop sliding immediately
+                else:
+                    break
+                # Advance to the next square along the direction vector
+                curr_r += dr
+                curr_c += dc
+        return moves
 
     def _step_moves(self, board: "Board", r: int, c: int, deltas: List[Tuple[int, int]]) -> List[Move]:
 
@@ -141,8 +160,17 @@ class Piece:
         Hint:
             Loop through each (dr, dc) in steps and check the resulting square.
         """
-        # TODO: Implement step-based movement logic
-        pass
+        moves = []
+        # Check each provided step (delta) from the current position
+        for dr, dc in deltas:
+            nr, nc = r + dr, c + dc
+            # Ensure the target square is within board bounds
+            if in_bounds(nr, nc):
+                target_piece = board.grid[nr][nc]
+                # A move is valid if the square is empty or has an opponent's piece
+                if target_piece is None or target_piece.color != self.color:
+                    moves.append(Move((r, c), (nr, nc)))
+        return moves
        
 
     def pseudo_legal_moves(self, board: "Board", r: int, c: int) -> List[Move]:
@@ -188,8 +216,44 @@ class Pawn(Piece):
         Hint:
             Check forward square and diagonal squares separately.
         """
-        # TODO: Implement pawn movement logic
-        pass
+                moves = []
+                # White pawns move up (-1), black pawns move down (+1)
+                direction = -1 if self.color == "w" else 1
+                # Starting rank for the double-push move
+                start_row = 6 if self.color == "w" else 1
+                # Target rank for pawn promotion
+                promo_row = 0 if self.color == "w" else 7
+
+                # 1. Standard forward move: one square if it's empty
+                nr, nc = r + direction, c
+                if in_bounds(nr, nc) and board.grid[nr][nc] is None:
+                    # If reaching the last rank, generate moves for all possible promotions
+                    if nr == promo_row:
+                        for p in ["q", "r", "b", "n"]:
+                            moves.append(Move((r, c), (nr, nc), promotion=p))
+                    else:
+                        moves.append(Move((r, c), (nr, nc)))
+                    
+                    # 2. Initial double forward push: only if the intermediate square is also empty
+                    if r == start_row:
+                        nr2, nc2 = r + 2 * direction, c
+                        if in_bounds(nr2, nc2) and board.grid[nr2][nc2] is None:
+                            moves.append(Move((r, c), (nr2, nc2)))
+
+                # 3. Diagonal capture moves: only if an enemy piece is present
+                for dc in [-1, 1]:
+                    nr, nc = r + direction, c + dc
+                    if in_bounds(nr, nc):
+                        target_piece = board.grid[nr][nc]
+                        if target_piece is not None and target_piece.color != self.color:
+                            # Diagonal captures can also lead to promotion
+                            if nr == promo_row:
+                                for p in ["q", "r", "b", "n"]:
+                                    moves.append(Move((r, c), (nr, nc), promotion=p))
+                            else:
+                                moves.append(Move((r, c), (nr, nc)))
+                
+                return moves
 
 #Same template now for rest
 class Knight(Piece):
@@ -220,8 +284,13 @@ class Knight(Piece):
         Hint:
             Use a predefined list of 8 possible moves.
         """
-        # TODO: Implement knight movement logic using step moves
-        pass
+                # Knights move in 'L' shapes (2 squares in one direction, 1 perpendicularly)
+                deltas = [
+                    (-2, -1), (-2, 1), (-1, -2), (-1, 2),
+                    (1, -2), (1, 2), (2, -1), (2, 1)
+                ]
+                # Utilize the generic _step_moves to calculate all valid jumps
+                return self._step_moves(board, r, c, deltas)
 
 
 class Bishop(Piece):
@@ -258,8 +327,10 @@ class Rook(Piece):
         Hint:
             Call the sliding move helper with the correct directions.
         """
-        # TODO: Implement rook movement using sliding moves
-        pass
+         # Rooks slide horizontally and vertically across any number of empty squares
+         directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+         # Use the sliding movement logic shared by multiple piece types
+         return self._slide_moves(board, r, c, directions)
 
 
 

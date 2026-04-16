@@ -138,7 +138,7 @@ class Evaluator:
         return score
 #Returns score from perspective of side to move, makes negamax work naturally
     def evaluate(self, board: Board) -> int:
-                """
+        """
         Evaluate the board position.
 
         Parameters:
@@ -158,5 +158,9 @@ class Evaluator:
         Hint:
             Use white_score(board), then adjust the sign based on whose turn it is.
         """
-        # TODO: Implement board evaluation
-        pass
+        # Compute the score from white's perspective
+        score = self.white_score(board)
+        # If it's white's turn, return the score as is. Otherwise, return the negated score
+        if board.turn == "w":
+            return score
+        return -score
