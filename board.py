@@ -282,8 +282,10 @@ class Board:
             
         # Check for checkmate vs stalemate
         if self.in_check():
-            winner = "Black" if self.turn == "w" else "White"
-            return f"{winner} wins by checkmate"
+            if self.turn == "w":
+                return "Black wins by checkmate"
+            else:
+                return "White wins by checkmate"
         else:
             return "draw by stalemate"
 
