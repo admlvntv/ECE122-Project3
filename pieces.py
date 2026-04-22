@@ -120,14 +120,14 @@ class Piece:
             # Keep sliding while the current square is within the board limits
             while in_bounds(curr_r, curr_c):
                 target_piece = board.grid[curr_r][curr_c]
-                # Empty square means a valid move; continue sliding in this direction
+                # Empty square means a valid move, continue sliding in this direction
                 if target_piece is None:
                     moves.append(Move((r, c), (curr_r, curr_c)))
-                # Enemy piece means a valid capture move; stop sliding after this square
+                # Enemy piece means a valid capture move, stop sliding after this square
                 elif target_piece.color != self.color:
                     moves.append(Move((r, c), (curr_r, curr_c)))
                     break
-                # Friendly piece means we are blocked; stop sliding immediately
+                # Friendly piece means we are blocked, stop sliding immediately
                 else:
                     break
                 # Advance to the next square along the direction vector
