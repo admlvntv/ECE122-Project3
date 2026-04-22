@@ -365,7 +365,12 @@ class Board:
         src = parse_square(text[0:2])
         dst = parse_square(text[2:4])
         # Check if there is a promotion piece specified (e.g. 'e7e8q')
-        promo = text[4].lower() if len(text) > 4 else None
+        if len(text) > 4 and text[4] not in "kqrb": # check if the promotion piece is a valid piece
+            raise ValueError(f"Invalid promotion symbol: {text[4]}")
+        elif len(text) > 4:
+            promo = text[4].upper()
+        else:
+            promo = None
         
         # Look for a matching legal move in the current position
         # A move is considered valid if it is in the list of legal moves
