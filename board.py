@@ -128,6 +128,10 @@ class Board:
         # Update the grid: move piece and clear source square
         self.grid[dr][dc] = piece
         self.grid[sr][sc] = None
+
+        # Handle default pawn promotion case
+        if not move.promotion and piece.kind == "P" and (dr == 0 or dr == 7):
+            move.promotion = "Q"
         
         # Handle special pawn promotion case
         if move.promotion:
