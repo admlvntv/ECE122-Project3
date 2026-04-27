@@ -1,4 +1,11 @@
 #Used to evaluate board pos numerically
+
+# Student 1: Agilan Kumar
+# Spire Id: 35073172
+#
+# Student 2: Adam Nativ
+# Spire Id: 35141601
+
 from __future__ import annotations
 
 from board import Board

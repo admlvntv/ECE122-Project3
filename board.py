@@ -1,5 +1,11 @@
 #Stores board, applies move, undo moves, check legal, serializez board state
 
+# Student 1: Agilan Kumar
+# Spire Id: 35073172
+#
+# Student 2: Adam Nativ
+# Spire Id: 35141601
+
 from __future__ import annotations
 
 from typing import List, Optional, Tuple

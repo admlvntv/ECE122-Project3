@@ -2,6 +2,12 @@
 moves, the piece base class, the individual piece types.
 """
 
+# Student 1: Agilan Kumar
+# Spire Id: 35073172
+#
+# Student 2: Adam Nativ
+# Spire Id: 35141601
+
 from __future__ import annotations
 """This delays evaluation of type hints until runtime is finished. 
 It is useful because later in the file, Move refers to Piece, and 
